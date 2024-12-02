@@ -4,7 +4,7 @@
   "description": "AOS Integration Test Kit",
   "scripts": {
     "test:js": "node --test test/**/*.test.js",
-    "test:sqlite": "FORMAT=wasm32-unknown-emscripten2 WASM=./AOS-SQLITE.wasm node --test test/**/*.test.js",
+    "test:sqlite": "FORMAT=wasm32-unknown-emscripten2 WASM=./process-sqlite.wasm node --experimental-wasm-memory64 --import tsx --test ./test/*.test.ts",
     "test": "node --experimental-wasm-memory64 --import tsx --test ./test/*.test.ts"
   },
   "keywords": [],

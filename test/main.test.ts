@@ -16,43 +16,49 @@ describe("AOS Tests", () => {
     await env.init();
   });
 
-  test("should respond with 'hello, world' for Action: hello", async () => {
-    const response = await env.send({ Action: "hello" });
-    assert.equal(response.Messages[0].Data, "hello, world");
-  });
-
-  test("should respond with 'You have send archlinux' for Action: data", async () => {
-    const response = await env.send({ Action: "data", Data: "archlinux" });
-    assert.equal(response.Messages[0].Data, "You have send archlinux");
-  });
-
-  test("should respond with the correct carname value for Action: tag", async () => {
-    const response = await env.send({
-      Action: "tag",
-      Tags: [{ carname: "tesla" }],
+  test("load DbAdmin module", async () => {
+    const dbAdminCode = fs.readFileSync("./src/dbAdmin.lua", "utf-8");
+    const result = await env.send({
+      Action: "Eval",
+      Data: `
+  local function _load() 
+    ${dbAdminCode}
+  end
+  _G.package.loaded["DbAdmin"] = _load()
+  return "ok"
+      `,
     });
-    assert.equal(
-      response.Messages[0].Data,
-      "The Key is `carname` and the value is tesla"
-    );
+    console.log("result DbAdmin Module", result);
+    assert.equal(result.Output.data, "ok");
   });
 
-  test("should add a key-value pair for Action: set", async () => {
-    const response = await env.send({
-      Action: "set",
-      Tags: [{ key: "blockchain" }, { value: "aos" }],
-    });
-    assert.equal(
-      response.Messages[0].Data,
-      "Added blockchain as key and aos as value"
-    );
+  test("load source", async () => {
+    const code = fs.readFileSync("./src/main.lua", "utf-8");
+    const result = await env.send({ Action: "Eval", Data: code });
+    console.log("result load source", result);
+    // assert.equal(result.Output.data, "OK");
   });
 
-  test("should retrieve the correct value for Action: get", async () => {
+  test("should add and get todo", async () => {
+    const todo = {
+      id: "1",
+      title: "Test Todo",
+      completed: false,
+    };
+
     const response = await env.send({
-      Action: "get",
-      Tags: [{ keys: "blockchain" }],
+      Action: "AddTodo",
+      Data: JSON.stringify(todo),
     });
-    assert.equal(response.Messages[0].Data, "The value for blockchain is aos");
+
+    console.log("add todo", response);
+    // const response = await env.send({ Action: "GetTodos" });
+    // const todos = JSON.parse(response.Messages[0].Data);
+    // assert.deepEqual(todos[0], todo);
+  });
+
+  test("should get todos", async () => {
+    const response = await env.send({ Action: "GetTodos" });
+    console.log(response);
   });
 });

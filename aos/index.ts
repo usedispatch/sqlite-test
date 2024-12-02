@@ -21,7 +21,7 @@ interface OutputData {
 }
 
 export default class aos {
-  wasm = fs.readFileSync(path.join(__dirname) + "/../process.wasm");
+  wasm = fs.readFileSync(path.join(__dirname) + "/../process-sqlite.wasm");
   code: string;
   process_id: string;
   module_id: string;
